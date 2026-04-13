@@ -41,7 +41,7 @@ jobs:
       
     - name: Test database connection from app container
       run: |
-        docker exec day1_docker_app_1 pg_isready -U devops_user -h database
+        docker exec day1_docker_web_1 sh -c "apk add --no-cache postgresql-client && pg_isready -U devops_user -h database"
       
     - name: Show logs if failed
       if: failure()
