@@ -32,16 +32,21 @@ jobs:
         cd day1_docker
         docker compose up -d
       
-    - name: Wait for services to be ready
+    - name: Wait for services
       run: sleep 10
+      
+    - name: List running containers
+      run: docker ps
       
     - name: Test web endpoint
       run: |
-        curl --fail http://localhost:8080 || exit 1
+        curl --fail http://localhost:8080
       
-    - name: Test database connection from app container
+    - name: Find web container and test database
       run: |
-        docker exec devops_web sh -c "apk add --no-cache postgresql-client && pg_isready -U devops_user -h database"
+        CONTAINER=$(docker ps --format '{{.Names}}' | grep -E 'day1_docker.*web' | head -1)
+        echo "Found container: $CONTAINER"
+        docker exec $CONTAINER sh -c "apk add --no-cache postgresql-client && pg_isready -U devops_user -h database"
       
     - name: Show logs if failed
       if: failure()
