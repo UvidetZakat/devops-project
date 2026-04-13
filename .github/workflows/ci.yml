@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Lint docker-compose.yml
+      run: |
+        cd day1_docker
+        docker compose config
+      
+    - name: Build app image
+      run: |
+        cd day1_docker/app
+        docker build -t test-app .
+      
+    - name: Start all services
+      run: |
+        cd day1_docker
+        docker compose up -d
+      
+    - name: Wait for services to be ready
+      run: sleep 10
+      
+    - name: Test web endpoint
+      run: |
+        curl --fail http://localhost:8080 || exit 1
+      
+    - name: Test database connection from app container
+      run: |
+        docker exec day1_docker_app_1 pg_isready -U devops_user -h database
+      
+    - name: Show logs if failed
+      if: failure()
+      run: |
+        cd day1_docker
+        docker compose logs
