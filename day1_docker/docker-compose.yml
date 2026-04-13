@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx:/usr/share/nginx/html:ro
+    networks:
+      - devops-net
+
+  database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: devops_user
+      POSTGRES_PASSWORD: devops_pass
+      POSTGRES_DB: devops_db
+    ports:
+      - "5432:5432"
+    networks:
+      - devops-net
+
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8081:8080"
+    networks:
+      - devops-net
+
+networks:
+  devops-net:
+    driver: bridge
