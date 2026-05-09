@@ -17,3 +17,10 @@ helm install loki grafana/loki-stack \
   --namespace monitoring \
   --set grafana.enabled=false \
   --set promtail.enabled=true
+
+  Доступ
+Grafana: kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80 → admin/admin123
+
+Prometheus: kubectl port-forward -n monitoring svc/prometheus-kube-prometheus-prometheus 9090:9090
+
+Loki: kubectl port-forward -n monitoring svc/loki 3100:3100
